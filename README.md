@@ -1,5 +1,6 @@
 # Nifty Returns Vizualizer
  A D3.js Swarmplot implementation to vizualize the Nifty-X Month-To-Date(MTD) returns.
+ Based on Chartfleau's Viz. for the S&P500 https://github.com/janvarsa/D3-Swarm-Tutorial / https://www.chartfleau.com/tutorials/d3swarm
 
  * Month-To-Date Returns: MTD is a period starting at the beginning of the current calendar month and ending at the current date.  
  For example: the month to date return for the stock is 8%. This means from the beginning of the current month until the current date, stock has appreciated by 8%. [source:wikipedia](https://en.wikipedia.org/wiki/Month-to-date)
