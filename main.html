@@ -37,7 +37,7 @@ let svg = d3
   .attr("height", height)
   .attr("width", width);
     
-d3.csv("May_Returns_Sorted.csv").then((data) => {
+d3.csv("/data/June_Returns_Sorted.csv").then((data) => {
   file_data = data
   day_limit=data.length/nifty_type
   data_first_day= data.slice(day_counter*nifty_type, (day_counter+1)*nifty_type)
