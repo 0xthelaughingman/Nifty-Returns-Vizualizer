@@ -64,6 +64,16 @@ d3.csv("/data/June_Returns_Sorted.csv").then((data) => {
   svg.append("g").call(y_axis);
   //var y_axis = d3.axis
 
+  var tooltip = d3.select("body")
+    .append("div")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .style("background", "#000")
+    .style("color","white")
+    .style("font-size","15pt")
+    .text("a simple tooltip");
+
   svg
     .selectAll(".circ")
     .data(data_first_day)   // initial circle data should be day 0
@@ -75,6 +85,9 @@ d3.csv("/data/June_Returns_Sorted.csv").then((data) => {
     .attr("r", (d) => size(Math.sqrt(Math.abs(d["Close"]))))
     .attr("cx", (d) => xScale(d.Sector))
     .attr("cy", (d) => yScale(d.Return))
+    .on("mouseover", function(d){tooltip.text(d.Ticker); return tooltip.style("visibility", "visible");})
+    .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
     //.attr("r", (d) => size(Math.sqrt(d["Close"])))
 
   sim(data_first_day)
