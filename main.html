@@ -17,11 +17,11 @@
   </body>
 </html>
 <script>
-const width = 2500;
-const height = 1080;
+const width = 5000;
+const height = 1280;
 
 let file_data
-let nifty_type=50
+let nifty_type=500
 let day_counter=0
 let day_limit=0
 let yScale
@@ -37,13 +37,13 @@ let svg = d3
   .attr("height", height)
   .attr("width", width);
     
-d3.csv("/data/June_Returns_Sorted.csv").then((data) => {
+d3.csv("/data/June_500_Returns_Sorted.csv").then((data) => {
     file_data = data
     day_limit=data.length/nifty_type
     data_first_day= data.slice(day_counter*nifty_type, (day_counter+1)*nifty_type)
 
     let sectors = Array.from(new Set(data_first_day.map((d) => d.Sector))); //  sectors remain consistent, pass either day's data.
-    let xCoords = sectors.map((d, i) => 150 + i * 150);
+    let xCoords = sectors.map((d, i) => 250 + i * 250);
     xScale = d3.scaleOrdinal().domain(sectors).range(xCoords);
 
     yScale = d3
@@ -55,13 +55,53 @@ d3.csv("/data/June_Returns_Sorted.csv").then((data) => {
 
     let marketcapDomain = d3.extent(data_first_day.map((d) => d["MarketCap"]/100));   // Pass a day as MarketCap is a static value for reference
     marketcapDomain = marketcapDomain.map((d) => Math.sqrt(Math.abs(d)));
-    size = d3.scaleLinear().domain(marketcapDomain).range([0, 5]);
+    size = d3.scaleLinear().domain(marketcapDomain).range([5, 10]);
 
     var x_axis = d3.axisBottom().scale(xScale);
-    svg.append("g").call(x_axis);
+    svg.append("g")
+        .style("font-size","9pt")
+        .call(x_axis);
 
     var y_axis = d3.axisRight().scale(yScale);
-    svg.append("g").call(y_axis);
+    svg.append("g")
+        .style("font-size","15pt")
+        .call(y_axis);
+
+
+    function make_y_gridlines() {		
+        return d3.axisLeft()
+            .scale(yScale)
+            .ticks(5)
+    }
+    
+
+    // gridlines in x axis function
+    function make_x_gridlines() {		
+        return d3.axisBottom(xScale)
+            .ticks(5)
+    }
+
+    svg.append("g")			
+        .attr("class", "grid")
+        .style("stroke-opacity", "0.7")
+        .style("stroke-dasharray", "5 5")
+        .call(
+            make_y_gridlines()
+            .tickSize(-width,0,0)
+            .tickFormat("")
+            )
+
+    svg.append("g")			
+        .attr("class", "grid")
+        .attr("transform", "translate(0," + height + ")")
+        .style("stroke-opacity", "0.7")
+        .style("stroke-dasharray", "5 5")
+        .call(
+            make_x_gridlines()
+            .tickSize(-height)
+            .tickFormat("")
+            )
+
     //var y_axis = d3.axis
 
     var tooltip = d3.select("body")
