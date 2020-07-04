@@ -38,102 +38,110 @@ let svg = d3
   .attr("width", width);
     
 d3.csv("/data/June_Returns_Sorted.csv").then((data) => {
-  file_data = data
-  day_limit=data.length/nifty_type
-  data_first_day= data.slice(day_counter*nifty_type, (day_counter+1)*nifty_type)
+    file_data = data
+    day_limit=data.length/nifty_type
+    data_first_day= data.slice(day_counter*nifty_type, (day_counter+1)*nifty_type)
 
-  let sectors = Array.from(new Set(data_first_day.map((d) => d.Sector))); //  sectors remain consistent, pass either day's data.
-  let xCoords = sectors.map((d, i) => 150 + i * 150);
-  xScale = d3.scaleOrdinal().domain(sectors).range(xCoords);
+    let sectors = Array.from(new Set(data_first_day.map((d) => d.Sector))); //  sectors remain consistent, pass either day's data.
+    let xCoords = sectors.map((d, i) => 150 + i * 150);
+    xScale = d3.scaleOrdinal().domain(sectors).range(xCoords);
 
-  yScale = d3
-      .scaleLinear()
-      .domain(d3.extent(data.map((d) => +d["Return"])))   //  pass whole data for domains/scales
-      .range([height - 50, 50]);
+    yScale = d3
+        .scaleLinear()
+        .domain(d3.extent(data.map((d) => +d["Return"])))   //  pass whole data for domains/scales
+        .range([height - 50, 50]);
 
-  let color = d3.scaleOrdinal().domain(sectors).range(d3.schemePaired);
+    let color = d3.scaleOrdinal().domain(sectors).range(d3.schemePaired);
 
-  let marketcapDomain = d3.extent(data.map((d) => d["Close"]));   // pass whole data for domains/scales
-  marketcapDomain = marketcapDomain.map((d) => Math.sqrt(Math.abs(d)));
-  size = d3.scaleLinear().domain(marketcapDomain).range([5, 10]);
+    let marketcapDomain = d3.extent(data_first_day.map((d) => d["MarketCap"]/100));   // Pass a day as MarketCap is a static value for reference
+    marketcapDomain = marketcapDomain.map((d) => Math.sqrt(Math.abs(d)));
+    size = d3.scaleLinear().domain(marketcapDomain).range([0, 5]);
 
-  var x_axis = d3.axisBottom().scale(xScale);
-  svg.append("g").call(x_axis);
+    var x_axis = d3.axisBottom().scale(xScale);
+    svg.append("g").call(x_axis);
 
-  var y_axis = d3.axisRight().scale(yScale);
-  svg.append("g").call(y_axis);
-  //var y_axis = d3.axis
+    var y_axis = d3.axisRight().scale(yScale);
+    svg.append("g").call(y_axis);
+    //var y_axis = d3.axis
 
-  var tooltip = d3.select("body")
-    .append("div")
-    .style("position", "absolute")
-    .style("z-index", "10")
-    .style("visibility", "hidden")
-    .style("background", "#000")
-    .style("color","white")
-    .style("font-size","15pt")
-    .text("a simple tooltip");
+    var tooltip = d3.select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden")
+        .style("background", "#000")
+        .style("color","white")
+        .style("font-size","15pt")
+        .text("a simple tooltip");
 
-  svg
-    .selectAll(".circ")
-    .data(data_first_day)   // initial circle data should be day 0
-    .enter()
-    .append("circle")
-    .attr("class", "circ")
-    .attr("stroke", "black")
-    .attr("fill", (d) => color(d.Sector))
-    .attr("r", (d) => size(Math.sqrt(Math.abs(d["Close"]))))
-    .attr("cx", (d) => xScale(d.Sector))
-    .attr("cy", (d) => yScale(d.Return))
-    .on("mouseover", function(d){tooltip.text(d.Ticker); return tooltip.style("visibility", "visible");})
-    .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
-    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-    //.attr("r", (d) => size(Math.sqrt(d["Close"])))
+    svg
+        .selectAll(".circ")
+        .data(data_first_day)   // initial circle data should be day 0
+        .enter()
+        .append("circle")
+        .attr("class", "circ")
+        .attr("stroke", "black")
+        .attr("fill", (d) => color(d.Sector))
+        .attr("r", (d) => size(Math.sqrt(Math.abs(d["MarketCap"]))))
+        .attr("cx", (d) => xScale(d.Sector))
+        .attr("cy", (d) => yScale(d.Return))
+        .on("mouseover", function(d){
+            return tooltip
+                    .style("visibility", "visible")
+                    .text(d.Ticker)
+        })
+        .on("mousemove", function(){
+            return tooltip
+                    .style("top", (d3.event.pageY-10)+"px")
+                    .style("left",(d3.event.pageX+10)+"px");
+        })
+        .on("mouseout", function(){
+            return tooltip.style("visibility", "hidden")
+        })
+        //.attr("r", (d) => size(Math.sqrt(d["Close"])))
 
-  sim(data_first_day)
+    sim(data_first_day)
+
 });
 
 function sim(data)
 {
-  simulation = d3
-    .forceSimulation(data)
-    .force(
-        "x",
-        d3.forceX((d) => {
-            return xScale(d.Sector);
-        })
-        .strength(0.2)
-    )
-    .force(
-        "y",
-        d3.forceY(function (d) {
-            return yScale(d.Return);
-        })
-        .strength(1)
-    )
-    .force(
-        "collide",
-        d3.forceCollide((d) => {
-            return size(Math.sqrt(Math.abs(d["Close"])));
-        })
-    )
-    .alphaDecay(0)
-    .alpha(0.3)
-    .on("tick", tick);
+    simulation = d3
+        .forceSimulation(data)
+        .force(
+            "x",
+            d3.forceX((d) => {
+                return xScale(d.Sector)
+            })
+            .strength(0.2)
+        )
+        .force(
+            "y",
+            d3.forceY(function (d) {
+                return yScale(d.Return)
+            })
+            .strength(1)
+        )
+        .force(
+            "collide",
+            d3.forceCollide((d) => {
+                return size(Math.sqrt(Math.abs(d["MarketCap"])))
+            })
+        )
+        .alphaDecay(0)
+        .alpha(0.3)
+        .on("tick", tick)
 
-  function tick() {
-    d3.selectAll(".circ")
-      .attr("cx", (d) => {
-        //console.log("cx = ", d.x)
-        return d.x;
-      })
-      .attr("cy", (d) => d.y);
-  }
+    function tick() {
+        d3.selectAll(".circ")
+            .attr("cx", (d) =>  d.x)
+            .attr("cy", (d) => d.y)
+    }
 
-  init_decay = setTimeout(function () {
-    console.log("start alpha decay");
-    simulation.alphaDecay(0.1);
-  }, 3000);
+    init_decay = setTimeout(function () {
+        console.log("start alpha decay")
+        simulation.alphaDecay(0.1)
+    }, 3000);
 
 }
 
@@ -141,13 +149,11 @@ function sim(data)
 function increment_day()
 {   
     console.log("Current Day", day_counter)
-    if(day_counter>=day_limit-1)
-    {
+    if(day_counter>=day_limit-1){
         console.log("No further data")
         return
     }
-    else
-    {
+    else{
         day_counter=day_counter+1
         data_day_n = file_data.slice(day_counter*nifty_type, (day_counter+1)*nifty_type)
         animate_circles(data_day_n)
@@ -156,13 +162,11 @@ function increment_day()
 
 function decrement_day()
 {
-    if(day_counter==0)
-    {
+    if(day_counter==0){
         console.log("No Backward data")
         return
     }
-    else
-    {
+    else{
         day_counter=day_counter-1
         data_day_n = file_data.slice(day_counter*nifty_type, (day_counter+1)*nifty_type)
         animate_circles(data_day_n)
@@ -171,39 +175,38 @@ function decrement_day()
 
 function animate_circles(data_new)
 {
-  var div = document.getElementById("date")
-  div.innerHTML="Current Day: " + data_new[0].Date
+    var div = document.getElementById("date")
+    div.innerHTML="Current Day: " + data_new[0].Date
 
-  // Recycle the force, override Y with new data values for the current day
-  simulation.force('y', d3.forceY(function(d,i){
-           return yScale(data_new[i].Return)
-         }))
+    //  Recycle the force, override Y with new data values for the current day
+    simulation.force('y', d3.forceY(function(d,i){
+        return yScale(data_new[i].Return)
+    }))
 
-  simulation
+    simulation
 		.alphaDecay(0)
 		.alpha(0.12)
 		.restart()
 
-  clearTimeout(init_decay)
+    clearTimeout(init_decay)
   
-  init_decay = setTimeout(function () {
-      simulation.alphaDecay(0.1);
-  }, 3000);
+    init_decay = setTimeout(function () {
+        simulation.alphaDecay(0.1);
+    }, 3000);
 
 }
 
 i = setInterval(function(){
-  animate_circles(file_data.slice(day_counter*nifty_type, (day_counter+1)*nifty_type))
-  console.log("Current Loop: ", day_counter)
-  if(day_counter+1 >= day_limit){
-    clearInterval(i)
-    return
-  }
-  else
-  {
-    day_counter++
-  }
-}, 2000)
+    animate_circles(file_data.slice(day_counter*nifty_type, (day_counter+1)*nifty_type))
+    console.log("Current Loop: ", day_counter)
+    if(day_counter+1 >= day_limit){
+        clearInterval(i)
+        return
+    }
+    else{
+        day_counter++
+    }
+}, 4000)
 
 
 </script>
