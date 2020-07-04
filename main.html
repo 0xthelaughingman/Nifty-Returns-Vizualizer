@@ -7,11 +7,11 @@
     <title>D3 Nifty Swarm Plot</title>
   </head>
   <body>
-        <div>
-            <button onclick="increment_day()">INCREMENT!</button>
-            <button onclick="decrement_day()">DECREMENT!</button>
+        <div style="font-size: 30pt;align-self: center;align-content: center;text-align: center;">
+            <button onclick="increment_day()" style="font-size: 30pt;">DAY++</button>
+            <button onclick="decrement_day()" style="font-size: 30pt;">DAY--</button>
         </div>
-        <div id="date" style="font-size: 18pt;">
+        <div id="date" style="font-size: 30pt;align-self: center;align-content: center;text-align: center;">
 
         </div>
   </body>
@@ -216,7 +216,7 @@ function decrement_day()
 function animate_circles(data_new)
 {
     var div = document.getElementById("date")
-    div.innerHTML="Current Day: " + data_new[0].Date
+    div.innerHTML="Current DAY: " + data_new[0].Date
 
     //  Recycle the force, override Y with new data values for the current day
     simulation.force('y', d3.forceY(function(d,i){
