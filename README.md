@@ -12,7 +12,8 @@
    * Close: The stock's daily closing price.
    * Market Cap[optional]: The stock's market cap.
    * Return: Derived field(from either the ratio of current day's close wrt starting day's close or the ratio of the Market Cap on the two days)
- * Dataset used(with modifications): https://www.kaggle.com/rohanrao/nifty50-stock-market-data
+ * Dataset used(for the Nifty50 initially): https://www.kaggle.com/rohanrao/nifty50-stock-market-data (Author: Rohan Rao, his comment in the discussion yielded the script for Nifty500 too!)
+ * Current Dataset Generation(Nifty500): https://github.com/Cruzo007/NSE-Nifty-Data
 
 # Getting Started
  For the D3 module to be able to read the csv, a local http server needs to be running.
