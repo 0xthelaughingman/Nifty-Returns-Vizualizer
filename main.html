@@ -111,7 +111,7 @@ d3.csv("/data/June_500_Returns_Sorted.csv").then((data) => {
         .style("visibility", "hidden")
         .style("background", "#000")
         .style("color","white")
-        .style("font-size","15pt")
+        .style("font-size","25pt")
         .text("a simple tooltip");
 
     svg
@@ -221,7 +221,8 @@ function animate_circles(data_new)
     //  Recycle the force, override Y with new data values for the current day
     simulation.force('y', d3.forceY(function(d,i){
         return yScale(data_new[i].Return)
-    }))
+    })
+    )
 
     simulation
 		.alphaDecay(0)
